@@ -18,4 +18,4 @@ UCI Credit Card Default Dataset (30,000 customers, 23 features)
 6. Professional HTML Report Generation
 
 ## Author
-Abhinav Srivastav | Indian School of Business 
+Abhinav Srivastav | AMPBA, ISB | Credit Analytics Portfolio Project
