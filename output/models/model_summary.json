@@ -1,0 +1,20 @@
+{
+  "logistic_regression": {
+    "model": "Logistic Regression",
+    "cv_auc_mean": 0.7537,
+    "cv_auc_std": 0.0094,
+    "train_auc": 0.7549,
+    "gini": 0.5099,
+    "ks_statistic": 0.407
+  },
+  "gradient_boosting": {
+    "model": "Gradient Boosting",
+    "cv_auc_mean": 0.7842,
+    "cv_auc_std": 0.0086,
+    "train_auc": 0.8015,
+    "gini": 0.6029,
+    "ks_statistic": 0.4536
+  },
+  "best_model": "Gradient Boosting",
+  "scorecard_built": true
+}
