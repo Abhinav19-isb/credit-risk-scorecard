@@ -1,5 +1,10 @@
 #SKILL.md - Credit Risk Scorecard Builder
 
+---
+name: credit-risk-scorecard
+description: "Build a complete credit risk scorecard from raw credit card transaction data. Use this skill whenever the user asks to build a credit scorecard, assess default risk, segment customers by credit score, compare Logistic Regression vs Gradient Boosting for credit risk, compute KS statistic or Gini coefficient, or generate a credit risk report. Trigger for requests like 'build me a credit scorecard', 'score these customers for default risk', 'which customers are high risk', or 'run a credit risk model on this data'. Uses UCI Credit Card Default Dataset and outputs a professional HTML report with score tiers and business recommendations."
+---
+
 ## Overview
 This skill instructs an LLM to perform an end to end credit risk scorecard analysis.
 Given a dataset of credit card customers, the skill orchestrates a complete pipeline:
