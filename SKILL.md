@@ -1,4 +1,3 @@
-#SKILL.md - Credit Risk Scorecard Builder
 
 ---
 name: credit-risk-scorecard
