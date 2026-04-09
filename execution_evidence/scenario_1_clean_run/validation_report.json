@@ -1,0 +1,16 @@
+{
+  "scenario": "Scenario 1 - Clean Run",
+  "timestamp": "2026-03-29T01:09:00",
+  "dataset": "UCI Credit Card Default Dataset",
+  "checks": {
+    "row_count": { "value": 30035, "status": "PASS" },
+    "column_count": { "value": 24, "status": "PASS" },
+    "null_values": { "value": 0, "status": "PASS" },
+    "duplicate_rows": { "value": 35, "status": "WARN", "action": "removed" },
+    "education_recode": { "values_recoded": [0, 5, 6], "to": 4, "status": "WARN" },
+    "marriage_recode": { "values_recoded": [0], "to": 3, "status": "WARN" },
+    "class_balance": { "default_rate": 0.3383, "status": "PASS" },
+    "overall_status": "WARN"
+  },
+  "clean_row_count": 30000
+}

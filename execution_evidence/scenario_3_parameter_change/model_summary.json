@@ -1,0 +1,26 @@
+{
+  "scenario": "Scenario 3 - Parameter Change",
+  "timestamp": "2026-03-29T01:22:00",
+  "winner": "Logistic Regression",
+  "parameter_changed": "Fair tier cutoff raised from 580 to 620",
+  "logistic_regression": {
+    "cv_auc": 0.7832,
+    "gini": 0.5664,
+    "ks_statistic": 0.4236,
+    "status": "PASS"
+  },
+  "portfolio": {
+    "total_customers": 30000,
+    "default_rate": 0.3383,
+    "high_risk_pct": 0.5102
+  },
+  "score_tiers": {
+    "Very Poor (300-500)": 7717,
+    "Poor (500-620)": 8934,
+    "Fair (620-670)": 3002,
+    "Good (670-740)": 5572,
+    "Very Good (740-800)": 3884,
+    "Exceptional (800-850)": 891
+  },
+  "note": "Raising Fair tier cutoff increases high-risk pool by 8.4% — more conservative lending policy"
+}

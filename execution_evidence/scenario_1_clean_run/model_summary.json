@@ -1,0 +1,30 @@
+{
+  "scenario": "Scenario 1 - Clean Run",
+  "timestamp": "2026-03-29T01:09:00",
+  "winner": "Logistic Regression",
+  "selection_reason": "AUC difference < 0.01, preferred for interpretability",
+  "logistic_regression": {
+    "cv_auc": 0.7832,
+    "gini": 0.5664,
+    "ks_statistic": 0.4236,
+    "status": "PASS - meets industry deployment standard"
+  },
+  "gradient_boosting": {
+    "cv_auc": 0.7870,
+    "gini": 0.5740,
+    "ks_statistic": 0.4650
+  },
+  "portfolio": {
+    "total_customers": 30000,
+    "default_rate": 0.3383,
+    "high_risk_pct": 0.4259
+  },
+  "score_tiers": {
+    "Very Poor (300-500)": 7717,
+    "Poor (500-580)": 5061,
+    "Fair (580-670)": 6875,
+    "Good (670-740)": 5572,
+    "Very Good (740-800)": 3884,
+    "Exceptional (800-850)": 891
+  }
+}
