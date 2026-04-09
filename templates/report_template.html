@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credit Risk Scorecard Report</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #2c3e50; font-size: 15px; }
+
+    /* Header */
+    .header {
+      background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #1565c0 100%);
+      color: white; padding: 48px 60px 36px;
+    }
+    .header h1 { font-size: 2.2em; font-weight: 700; letter-spacing: -0.5px; }
+    .header .subtitle { font-size: 1.05em; opacity: 0.85; margin-top: 8px; }
+    .header .meta { margin-top: 16px; font-size: 0.88em; opacity: 0.7; }
+
+    /* Layout */
+    .container { max-width: 1100px; margin: 36px auto; padding: 0 24px; }
+    .section {
+      background: white; border-radius: 14px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      padding: 32px 36px; margin-bottom: 28px;
+    }
+    .section h2 {
+      font-size: 1.35em; font-weight: 700; color: #1a237e;
+      border-bottom: 3px solid #e8eaf6; padding-bottom: 12px; margin-bottom: 22px;
+    }
+    .section h3 { font-size: 1.08em; font-weight: 600; color: #283593; margin: 22px 0 12px; }
+
+    /* KPI Cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px; margin-bottom: 24px; }
+    .kpi-card { border-radius: 12px; padding: 22px 20px; text-align: center; color: white; }
+    .kpi-card .label { font-size: 0.82em; opacity: 0.88; text-transform: uppercase; letter-spacing: 0.5px; }
+    .kpi-card .value { font-size: 2.1em; font-weight: 800; margin: 6px 0 4px; }
+    .kpi-card .badge {
+      font-size: 0.78em; background: rgba(255,255,255,0.25);
+      border-radius: 20px; padding: 2px 10px; display: inline-block;
+    }
+    .kpi-blue  { background: linear-gradient(135deg, #2980b9, #2980b9cc); }
+    .kpi-green { background: linear-gradient(135deg, #27ae60, #27ae60cc); }
+    .kpi-red   { background: linear-gradient(135deg, #c0392b, #c0392bcc); }
+    .kpi-purple{ background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 0.92em; }
+    th { background: #e8eaf6; color: #1a237e; padding: 10px 14px; text-align: left; font-weight: 600; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f7f8ff; }
+
+    /* Badges */
+    .badge-pass   { background: #27ae60; color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; }
+    .badge-warn   { background: #e67e22; color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; }
+    .badge-good   { background: #2980b9; color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; }
+    .badge-strong { background: #27ae60; color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; }
+    .badge-winner { background: #1a237e; color: white; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; }
+
+    /* Note box */
+    .note {
+      background: #fffde7; border-left: 4px solid #f9a825;
+      padding: 12px 16px; border-radius: 0 8px 8px 0;
+      font-size: 0.9em; color: #555; margin-top: 16px;
+    }
+
+    /* Two column layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    /* Chart images */
+    .chart-img { width: 100%; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); }
+
+    /* Score tier colours */
+    .tier-very-poor  { background: #fdecea; color: #c0392b; font-weight: 700; }
+    .tier-poor       { background: #fef3e2; color: #e67e22; font-weight: 700; }
+    .tier-fair       { background: #fefde7; color: #d4ac0d; font-weight: 700; }
+    .tier-good       { background: #eafaf1; color: #27ae60; font-weight: 700; }
+    .tier-very-good  { background: #eaf4fb; color: #2980b9; font-weight: 700; }
+    .tier-exceptional{ background: #f3e8fd; color: #8e44ad; font-weight: 700; }
+
+    /* Footer */
+    .footer { text-align: center; color: #aaa; font-size: 0.82em; padding: 28px 0 40px; }
+
+    @media (max-width: 700px) {
+      .two-col { grid-template-columns: 1fr; }
+      .header  { padding: 28px 20px 22px; }
+      .section { padding: 20px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     HEADER — populated by generate_report.py
+     Variables: {{ report_title }}, {{ dataset_info }},
+                {{ generated_date }}, {{ author }}, {{ model_winner }}
+     ═══════════════════════════════════════════════════ -->
+<div class="header">
+  <h1>{{ report_title }}</h1>
+  <div class="subtitle">{{ dataset_info }}</div>
+  <div class="meta">
+    Generated {{ generated_date }} &nbsp;&nbsp;
+    Author: {{ author }} &nbsp;&nbsp;
+    Model: {{ model_winner }}
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 1 — EXECUTIVE SUMMARY
+       Variables: {{ cv_auc }}, {{ gini }}, {{ ks_stat }},
+                  {{ default_rate }}, {{ portfolio_size }},
+                  {{ high_risk_pct }}, {{ summary_text }}
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Executive Summary</h2>
+    <div class="kpi-grid">
+      <div class="kpi-card kpi-blue">
+        <div class="label">CV AUC Score</div>
+        <div class="value">{{ cv_auc }}</div>
+        <div class="badge">Good</div>
+      </div>
+      <div class="kpi-card kpi-blue">
+        <div class="label">Gini Coefficient</div>
+        <div class="value">{{ gini }}</div>
+        <div class="badge">Good</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="label">KS Statistic</div>
+        <div class="value">{{ ks_stat }}</div>
+        <div class="badge">Strong</div>
+      </div>
+      <div class="kpi-card kpi-purple">
+        <div class="label">Portfolio Default Rate</div>
+        <div class="value">{{ default_rate }}%</div>
+        <div class="badge">{{ portfolio_size }} customers</div>
+      </div>
+      <div class="kpi-card kpi-red">
+        <div class="label">High-Risk Portfolio</div>
+        <div class="value">{{ high_risk_pct }}%</div>
+        <div class="badge">Elevated</div>
+      </div>
+    </div>
+    <p style="color:#555;font-size:0.97em;line-height:1.7;">{{ summary_text }}</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 2 — DATA QUALITY
+       Variables: {{ dq_rows }}, {{ dq_columns }},
+                  {{ dq_nulls }}, {{ dq_duplicates }},
+                  {{ dq_edu_recode }}, {{ dq_mar_recode }},
+                  {{ dq_class_balance }}, {{ dq_overall_status }},
+                  {{ dq_chart_base64 }}, {{ dq_note }}
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Data Quality Summary</h2>
+    <table>
+      <tr><th>Check</th><th>Result</th><th>Status</th></tr>
+      <tr><td style="font-weight:500">Row Count</td>      <td>{{ dq_rows }}</td>       <td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td style="font-weight:500">Column Count</td>   <td>{{ dq_columns }}</td>    <td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td style="font-weight:500">Null Values</td>    <td>{{ dq_nulls }}</td>       <td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td style="font-weight:500">Duplicate Rows</td> <td>{{ dq_duplicates }}</td>  <td><span class="badge-warn">WARN</span></td></tr>
+      <tr><td style="font-weight:500">EDUCATION Recode</td><td>{{ dq_edu_recode }}</td><td><span class="badge-warn">WARN</span></td></tr>
+      <tr><td style="font-weight:500">MARRIAGE Recode</td> <td>{{ dq_mar_recode }}</td><td><span class="badge-warn">WARN</span></td></tr>
+      <tr><td style="font-weight:500">Class Balance</td>  <td>{{ dq_class_balance }}</td><td><span class="badge-pass">PASS</span></td></tr>
+      <tr><td style="font-weight:500">Overall Status</td> <td>{{ dq_overall_status }}</td><td><span class="badge-warn">WARN</span></td></tr>
+    </table>
+    <div class="two-col" style="margin-top:22px">
+      <div><img src="data:image/png;base64,{{ dq_chart_base64 }}" alt="Data Quality Chart" class="chart-img"></div>
+      <div class="note">{{ dq_note }}</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 3 — METHODOLOGY
+       Variables: {{ feature_rows }} (list of dicts),
+                  {{ model_comparison_rows }} (list of dicts),
+                  {{ model_selection_note }}
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Methodology</h2>
+    <h3>Feature Engineering — 7 New Features</h3>
+    <table>
+      <tr><th>Feature</th><th>Formula</th><th>Range</th><th>Business Meaning</th></tr>
+      {% for row in feature_rows %}
+      <tr>
+        <td style="font-family:monospace;font-size:0.88em;color:#2980b9">{{ row.name }}</td>
+        <td style="font-size:0.85em;font-family:monospace">{{ row.formula }}</td>
+        <td style="text-align:center">{{ row.range }}</td>
+        <td style="font-size:0.88em;color:#555">{{ row.meaning }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <h3>Model Comparison</h3>
+    <table>
+      <tr><th>Dimension</th><th>Logistic Regression</th><th>Gradient Boosting</th></tr>
+      {% for row in model_comparison_rows %}
+      <tr>
+        <td>{{ row.dimension }}</td>
+        <td>{{ row.lr }}</td>
+        <td>{{ row.gb }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div class="note">{{ model_selection_note }}</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 4 — MODEL VALIDATION
+       Variables: {{ validation_rows }} (list of dicts),
+                  {{ roc_chart_base64 }},
+                  {{ importance_chart_base64 }}
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Model Validation Results</h2>
+    <table>
+      <tr><th>Metric</th><th>Value</th><th>Good Threshold</th><th>Excellent Threshold</th><th>Assessment</th></tr>
+      {% for row in validation_rows %}
+      <tr>
+        <td>{{ row.metric }}</td>
+        <td><strong>{{ row.value }}</strong></td>
+        <td>{{ row.good }}</td>
+        <td>{{ row.excellent }}</td>
+        <td><span class="badge-{{ row.badge_class }}">{{ row.assessment }}</span></td>
+      </tr>
+      {% endfor %}
+    </table>
+    <div style="margin-top:22px" class="two-col">
+      <div><img src="data:image/png;base64,{{ roc_chart_base64 }}" alt="ROC Curve" class="chart-img"></div>
+      <div><img src="data:image/png;base64,{{ importance_chart_base64 }}" alt="Feature Importance" class="chart-img"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 5 — SCORE TIER DISTRIBUTION
+       Variables: {{ tier_rows }} (list of dicts with
+                  tier, range, count, pct, default_rate, action)
+                  {{ tier_chart_base64 }}
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Credit Score Distribution &amp; Tier Analysis</h2>
+    <img src="data:image/png;base64,{{ tier_chart_base64 }}" alt="Score Tier Distribution" class="chart-img" style="margin-bottom:22px">
+    <table>
+      <tr><th>Tier</th><th>Score Range</th><th>Customers</th><th>%</th><th>Default Rate</th><th>Recommended Action</th></tr>
+      {% for row in tier_rows %}
+      <tr>
+        <td class="tier-{{ row.tier_class }}">{{ row.tier }}</td>
+        <td>{{ row.score_range }}</td>
+        <td>{{ row.count }}</td>
+        <td>{{ row.pct }}%</td>
+        <td>{{ row.default_rate }}%</td>
+        <td style="font-size:0.88em;color:#555">{{ row.action }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 6 — ASSUMPTIONS & LIMITATIONS
+       Variables: {{ assumptions }} (list of strings)
+       ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <h2>Assumptions &amp; Limitations</h2>
+    <ol style="padding-left:20px;line-height:2">
+      {% for item in assumptions %}
+      <li style="font-size:0.95em;color:#555">{{ item }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+
+</div><!-- end .container -->
+
+<div class="footer">
+  Credit Risk Scorecard &mdash; {{ author }} &mdash; {{ generated_date }}<br>
+  <em>This report is for educational and analytical purposes only. Not financial advice.</em>
+</div>
+
+</body>
+</html>
