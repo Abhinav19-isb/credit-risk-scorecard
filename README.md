@@ -11,6 +11,9 @@ Financial Analytics — Credit Risk
 UCI Credit Card Default Dataset (30,000 customers, 23 features)
 Source: https://archive.ics.uci.edu/ml/datasets/default+of+credit+card+clients
 License: CC BY 4.0
+Synthetic data generator: scripts/generate_synthetic_data.py
+(Used for pipeline testing — generates clean, bad_data, missing_cols, and imbalanced scenarios)
+
 
 ## Pipeline Stages
 1. Data Validation and Profiling
