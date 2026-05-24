@@ -1,13 +1,15 @@
 # 💳 Credit Risk Scorecard
-
 ![CI](https://github.com/Abhinav19-isb/credit-risk-scorecard/actions/workflows/ci.yml/badge.svg)
 
 An end-to-end credit risk scoring pipeline built on the **UCI Default of Credit Card Clients dataset** (30,000 records). The project trains Logistic Regression and Gradient Boosting models, engineers six domain-driven features, validates performance against industry benchmarks, and maps predicted default probabilities to a FICO-aligned 300–850 credit score scale.
 
+> 📊 **[View Interactive HTML Report](https://htmlpreview.github.io/?https://github.com/Abhinav19-isb/credit-risk-scorecard/blob/main/outputs/reports/credit_risk_report.html)** — scorecard output, model metrics, and charts
+
+> 🚀 **[Live Demo — Streamlit App](https://credit-risk-scorecard.streamlit.app)** — enter customer details and get an instant credit score
+
 ***
 
 ## 📋 Table of Contents
-
 - [Project Overview](#-project-overview)
 - [Dataset](#-dataset)
 - [Project Structure](#-project-structure)
@@ -33,6 +35,7 @@ An end-to-end credit risk scoring pipeline built on the **UCI Default of Credit 
 | **Default rate** | ~22% |
 | **Models** | Logistic Regression + Gradient Boosting Classifier |
 | **Score range** | 300–850 (FICO-aligned) |
+| **Demo** | [Streamlit app](https://credit-risk-scorecard.streamlit.app) |
 
 ***
 
@@ -41,6 +44,7 @@ An end-to-end credit risk scoring pipeline built on the **UCI Default of Credit 
 **Source:** [UCI Machine Learning Repository — Default of Credit Card Clients](https://archive.ics.uci.edu/dataset/350/default+of+credit+card+clients)
 
 Fetched programmatically via `ucimlrepo`:
+
 ```python
 from ucimlrepo import fetch_ucirepo
 dataset = fetch_ucirepo(id=350)
@@ -61,7 +65,6 @@ dataset = fetch_ucirepo(id=350)
 | `DEFAULT` | Target: 1 = defaulted next month, 0 = did not default |
 
 ### Data Cleaning
-
 - Columns renamed from `X1`–`X23` to readable names
 - `EDUCATION` values `{0, 5, 6}` recoded to `4` (Other — undocumented in original paper)
 - `MARRIAGE` value `0` recoded to `3` (Other)
@@ -75,26 +78,27 @@ dataset = fetch_ucirepo(id=350)
 credit-risk-scorecard/
 │
 ├── scripts/
-│   ├── validate_data.py          # Stage 1 — data validation (schema, types, ranges, default rate)
-│   ├── generate_synthetic_data.py # Synthetic data generator (4 scenarios for testing)
-│   └── run_models.py             # Stages 2–4 — modelling, scorecard, charts
+│   ├── validate_data.py              # Stage 1 — data validation
+│   ├── generate_synthetic_data.py    # Synthetic data generator
+│   └── run_models.py                 # Stages 2–4 — modelling, scorecard, charts
+│
+├── app.py                            # Streamlit demo app
 │
 ├── notebooks/
-│   └── 01_EDA_and_Feature_Engineering.ipynb  # EDA, WoE, IV, bivariate analysis
+│   └── 01_EDA_and_Feature_Engineering.ipynb
 │
 ├── tests/
-│   └── test_validate_data.py     # 12 unit tests for validate_data.py
+│   └── test_validate_data.py         # 12 unit tests
 │
 ├── outputs/
-│   └── models/
-│       ├── credit_scores.csv     # Predicted probability + score + tier per customer
-│       ├── model_summary.json    # CV AUC, Gini, KS for both models
-│       └── charts/               # ROC curves, feature importance, score distribution
+│   ├── models/
+│   │   ├── credit_scores.csv
+│   │   ├── model_summary.json
+│   │   └── charts/
+│   └── reports/
+│       └── credit_risk_report.html   # ← Interactive HTML report
 │
-├── .github/
-│   └── workflows/
-│       └── ci.yml                # GitHub Actions: validate → test → model → upload report
-│
+├── .github/workflows/ci.yml
 ├── requirements.txt
 ├── data_dictionary.md
 └── README.md
@@ -106,19 +110,17 @@ credit-risk-scorecard/
 
 ```
 Stage 1 │ validate_data.py  ─── Schema check, missingness, bounds, default rate
-   ↓
+        ↓
 Stage 2 │ run_models.py     ─── Load UCI dataset via ucimlrepo, clean & recode
-   ↓
+        ↓
 Stage 3 │ run_models.py     ─── Feature engineering (6 new features), model training
-   ↓
+        ↓
 Stage 4 │ run_models.py     ─── Model comparison, scorecard scaling (300–850), charts
 ```
 
 ***
 
 ## 🔧 Feature Engineering
-
-Six new features are engineered from the raw payment history:
 
 | Feature | Formula | Business Rationale |
 |---|---|---|
@@ -135,7 +137,7 @@ Six new features are engineered from the raw payment history:
 
 ## 📊 Model Performance
 
-Both models are evaluated using 5-fold Stratified Cross-Validation. The winner is selected by CV AUC. A ≤0.01 AUC difference favours Logistic Regression for interpretability.
+Both models evaluated using 5-fold Stratified Cross-Validation.
 
 | Metric | Logistic Regression | Gradient Boosting | Industry Threshold |
 |---|---|---|---|
@@ -151,15 +153,12 @@ Both models are evaluated using 5-fold Stratified Cross-Validation. The winner i
 
 ### Probability → Score Mapping
 
-The predicted default probability `p` is linearly mapped to the 300–850 scale:
-
 ```
 Credit Score = 850 − (p × 550)
 ```
 
 - `p = 0.0` (no risk) → Score = **850** (Exceptional)
 - `p = 1.0` (certain default) → Score = **300** (Very Poor)
-- Scores are clipped to `[300, 850]`
 
 ### Score Tiers
 
@@ -172,48 +171,43 @@ Credit Score = 850 − (p × 550)
 | 500–579 | Poor | Decline or secured product |
 | 300–499 | Very Poor | Decline |
 
-> **Note:** This mapping uses a simplified linear transform. A production scorecard would use a PDO (Points to Double the Odds) log-odds calibration to ensure score intervals correspond to consistent risk multiples.
+> **Note:** Production scorecards use PDO (Points to Double the Odds) log-odds calibration. Full derivation documented in `scripts/run_models.py → build_scorecard()`.
 
 ***
 
 ## ▶️ How to Run
 
 ### 1. Install dependencies
-
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Validate data (optional — for synthetic scenarios)
-
+### 2. Validate data
 ```bash
-# Generate synthetic test data first
 python scripts/generate_synthetic_data.py --rows 1000 --output data/synthetic_data.csv
-
-# Run validation
 python scripts/validate_data.py --input data/synthetic_data.csv
-python scripts/validate_data.py --input data/synthetic_data.csv --strict   # warnings → failures
 ```
 
 ### 3. Run the full modelling pipeline
-
 ```bash
 python scripts/run_models.py
-python scripts/run_models.py --output my_output_dir   # custom output path
 ```
 
 ### 4. Run unit tests
-
 ```bash
 pytest tests/ -v
-pytest tests/ -v --cov=scripts --cov-report=term-missing
 ```
 
-### 5. Open the EDA notebook
-
+### 5. Launch the Streamlit demo
 ```bash
-jupyter notebook notebooks/01_EDA_and_Feature_Engineering.ipynb
+streamlit run app.py
 ```
+
+### 6. View the HTML report
+```
+outputs/reports/credit_risk_report.html
+```
+Or online: [HTMLPreview link](https://htmlpreview.github.io/?https://github.com/Abhinav19-isb/credit-risk-scorecard/blob/main/outputs/reports/credit_risk_report.html)
 
 ***
 
@@ -245,6 +239,8 @@ scipy==1.12.0
 imbalanced-learn==0.12.0
 groq==0.5.0
 ucimlrepo
+shap
+streamlit
 pytest
 pytest-cov
 ```
@@ -253,21 +249,20 @@ pytest-cov
 
 ## 📈 Results
 
-After running the pipeline, `outputs/models/` contains:
-
 | File | Content |
 |---|---|
 | `credit_scores.csv` | Predicted probability, credit score, and tier for all 30,000 customers |
 | `model_summary.json` | CV AUC, Gini, KS for both models + winner |
 | `charts/chart4_roc_and_importance.png` | ROC curve comparison + GBM feature importance |
 | `charts/chart5_score_distribution.png` | Credit score distribution across all customers |
+| `charts/shap_summary_bar.png` | SHAP global feature importance |
+| `charts/shap_beeswarm.png` | SHAP beeswarm — feature direction + magnitude |
 
 ***
 
 ## 👤 Author
 
-**Abhinav Srivastav**  
-Analytics & Credit Risk | ISB AMPBA  
-[GitHub](https://github.com/Abhinav19-isb) · [LinkedIn](https://www.linkedin.com/in/abhinav-srivastav-isb)
+**Abhinav Srivastav**
+Analytics & Credit Risk | ISB AMPBA
 
-***
+[GitHub](https://github.com/Abhinav19-isb) · [LinkedIn](https://www.linkedin.com/in/abhinav-srivastav-isb)
