@@ -7,9 +7,7 @@ on:
     branches: [ main ]
 
 env:
-BLOCK
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-LINE
 
 jobs:
   test:
