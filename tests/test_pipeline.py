@@ -124,7 +124,7 @@ class TestClassBalance:
             "DEFAULT": [0] * 490 + [1] * 10   # 2% default rate
         })
         result = validate_class_balance(df_imbal)
-        assert result["imbalance_flag"] is True
+        assert result["imbalance_flag"] == True
 
 
 # ── STAGE 2-4: MODELLING TESTS ────────────────────────────────────────────────
