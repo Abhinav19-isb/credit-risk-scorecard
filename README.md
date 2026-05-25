@@ -2,7 +2,7 @@
 ![CI](https://github.com/Abhinav19-isb/credit-risk-scorecard/actions/workflows/ci.yml/badge.svg)
 
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](YOUR_STREAMLIT_URL_HERE)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://credit-risk-scorecard-t323iyh6yqk2u49zcfyfcp.streamlit.app/))
 
 An end-to-end credit risk scoring pipeline built on the **UCI Default of Credit Card Clients dataset** (30,000 records). The project trains Logistic Regression and Gradient Boosting models, engineers six domain-driven features, validates performance against industry benchmarks, and maps predicted default probabilities to a FICO-aligned 300–850 credit score scale.
 
